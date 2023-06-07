@@ -1,0 +1,54 @@
+{
+  "tests": [
+    {
+      "name": "Handling Exceptions Bank Unit Tests",
+      "setup": "",
+      "run": "./gradlew bank-test",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": null
+    },
+    {
+      "name": "Handling Exceptions Cookies Unit Tests",
+      "setup": "",
+      "run": "./gradlew cookies-test",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": null
+    },
+    {
+      "name": "Mocks Portfolio Unit Tests",
+      "setup": "",
+      "run": "./gradlew portfolio-test",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": null
+    },
+    {
+      "name": "Mocks Subscription Unit Tests",
+      "setup": "",
+      "run": "./gradlew subscription-test",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": null
+    },
+    {
+      "name": "Groupwork RackMonitor Unit Tests",
+      "setup": "",
+      "run": "./gradlew groupwork-rackmonitor-test",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": null
+    }
+  ]
+}
