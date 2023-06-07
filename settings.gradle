@@ -1,0 +1,7 @@
+rootProject.name = 'ATA-Week-7'
+include ':Utilities'
+include ':HandlingExceptions:Bank'
+include ':Mocks:Subscription'
+include ':HandlingExceptions:Cookies'
+include ':Mocks:Portfolio'
+include ':GroupWork:RackMonitor'

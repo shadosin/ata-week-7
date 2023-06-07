@@ -1,0 +1,33 @@
+plugins {
+    id 'ata-curriculum.snippets-conventions'
+    id 'ata-curriculum.integration-test-conventions'
+}
+
+checkstyle {
+    def suppressionFile = rootProject.file('Utilities/ATACheckstyle/configuration/checkstyle/unit1/suppressions.xml')
+    configProperties.put('checkstyle.suppression.filter', suppressionFile)
+}
+
+def wflowToTestsMap = [
+        'cookies-test': [
+                'com.kenzie.cookies.ChocolateChipCookieTest',
+                'com.kenzie.cookies.CookieBoxTest',
+                'com.kenzie.cookies.CookiePackagerTest',
+                'com.kenzie.cookies.DeepLensCookieInspectorTest',
+                'com.kenzie.cookies.IngredientCookieInspectorTest',
+                'com.kenzie.cookies.MixerTest',
+                'com.kenzie.cookies.OvenTest',
+                'com.kenzie.cookies.ProductionLineTest'
+        ]
+]
+
+wflowToTestsMap.forEach { wflowName, testList ->
+    tasks.register(wflowName) {
+        dependsOn wflowtest
+        test.doFirst {
+            filter {
+                testList.each { includeTestsMatching it }
+            }
+        }
+    }
+}
