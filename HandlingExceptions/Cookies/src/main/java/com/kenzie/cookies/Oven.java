@@ -35,7 +35,7 @@ public class Oven {
      */
     public ChocolateChipCookie bake(List<CookieIngredient> ingredients) {
         if (!on) {
-            throw new CookieDependencyException("Unable to bake cookies when the oven in off.");
+            throw new CookieDependencyException("Unable to bake cookies when the oven is off.");
         }
         return new ChocolateChipCookie(getRandomSize(), random.nextInt(25), ingredients);
     }

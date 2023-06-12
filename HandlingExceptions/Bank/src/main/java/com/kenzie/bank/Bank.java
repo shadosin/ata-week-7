@@ -1,5 +1,6 @@
 package com.kenzie.bank;
 
+import com.kenzie.bank.exceptions.TransactionException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,6 +23,13 @@ public class Bank {
      */
     public boolean transfer(BankAccount fromAccount, BankAccount toAccount, BigDecimal amount) {
         // TODO: implement
-        return false;
+        try{
+            fromAccount.withdraw(amount);
+            toAccount.deposit(amount);
+            return true;
+        }catch (TransactionException e){
+            log.error("TransactionException occurred during transfer,", e);
+            return false;
+        }
     }
 }

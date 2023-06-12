@@ -4,10 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,20 +20,19 @@ public class EmailServiceClientTest {
     Subscription subscription = new MonthlySubscription("barnikki-B06XH36LTN", "B06XH36LTN", customerId);
 
     // TODO: Something goes here
+    @Mock
     private CustomerDao customerDao;
-
+    @Mock
     // TODO: Something goes here
     private EmailService emailService;
-
+    @InjectMocks
     // TODO: Something goes here
     private EmailServiceClient emailServiceClient;
 
     @BeforeEach
     public void setup() {
         // TODO: Something goes here and replaces the customerDao, emailService, and emailServiceClient lines below
-        customerDao = new CustomerDao();
-        emailService = new EmailService();
-        emailServiceClient = new EmailServiceClient(emailService, customerDao);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -41,11 +40,7 @@ public class EmailServiceClientTest {
         // GIVEN: valid subscription & customer data (with an email address)
 
         // TODO: subscription, customer, and the method customerDao.createCustomer() should be replaced with a Mock method that returns a customer 'when' the method is called
-        Subscription subscription = new MonthlySubscription("barnikki-B06XH36LTN", "B06XH36LTN",
-            "barnikki");
-        Customer customer = new Customer("barnikki", "barnikki@amazon.com", "Nikki",
-            "Barry");
-        customerDao.createCustomer(customer);
+        when(customerDao.getCustomer(customerId)).thenReturn(customer);
 
         // WHEN: you send a new Subscription email
 
@@ -53,11 +48,16 @@ public class EmailServiceClientTest {
         boolean emailSent = emailServiceClient.sendNewSubscriptionEmail(subscription);
 
         // THEN: Send the email and return true
-
+        String expectedMessage = String.format(
+                "Dear %s, you have a new subscription %s for item %s",
+                customer.getFullName(),
+                subscription.getSubscriptionId(),
+                subscription.getAsin()
+        );
         // NOTE: DO NOT CHANGE THIS NEXT LINE
         assertTrue(emailSent, "Expected the email to have successfully sent.");
 
         // TODO: Add one additional 'verify' statement below to verify the emailService sendEmail() method is called successfully
-
+        verify(emailService).sendEmail(email, expectedMessage);
     }
 }

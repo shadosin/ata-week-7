@@ -17,8 +17,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class RackMonitorDependencyTest {
@@ -57,10 +56,13 @@ public class RackMonitorDependencyTest {
         // The rack is set up with a single unhealthy server
         when(mockRack.getHealth()).thenReturn(unhealthyServerResult);
 
+
         // WHEN
         rackMonitor.monitorRacks();
 
         // THEN
+        verify(wingnutClient).requestReplacement(any(), anyInt(), any());
+        verify(warrantyClient).getWarrantyForServer(any());
         // There were no exceptions
     }
 
@@ -74,6 +76,7 @@ public class RackMonitorDependencyTest {
         rackMonitor.monitorRacks();
 
         // THEN
+        verify(wingnutClient).requestInspection(any(), anyInt());
         // There were no exceptions
     }
 

@@ -1,19 +1,27 @@
 package com.kenzie.rackmonitor;
 
 import com.kenzie.rackmonitor.*;
+import com.kenzie.rackmonitor.clients.warranty.Warranty;
 import com.kenzie.rackmonitor.clients.warranty.WarrantyClient;
+import com.kenzie.rackmonitor.clients.warranty.WarrantyNotFoundException;
 import com.kenzie.rackmonitor.clients.wingnut.WingnutClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 public class RackMonitorIncidentTest {
     RackMonitor rackMonitor;
+    @Mock
     WingnutClient wingnutClient;
+    @Mock
     WarrantyClient warrantyClient;
+    @Mock
     Rack rack1;
     Server unhealthyServer = new Server("TEST0001");
     Server shakyServer = new Server("TEST0067");
@@ -21,11 +29,7 @@ public class RackMonitorIncidentTest {
 
     @BeforeEach
     void setUp() {
-        warrantyClient = new WarrantyClient();
-        wingnutClient = new WingnutClient();
-        rack1ServerUnits = new HashMap<>();
-        rack1ServerUnits.put(unhealthyServer, 1);
-        rack1 = new Rack("RACK01", rack1ServerUnits);
+        openMocks(this);
         rackMonitor = new RackMonitor(new HashSet<>(Arrays.asList(rack1)),
             wingnutClient, warrantyClient, 0.9D, 0.8D);
     }
@@ -35,6 +39,15 @@ public class RackMonitorIncidentTest {
         // GIVEN
         // The rack is set up with a single unhealthy server
         // We've reported the unhealthy server to Wingnut
+        Map<Server, Double> unhealthyMap = new HashMap<>();
+        unhealthyMap.put(unhealthyServer, 0.7);
+
+        Warranty warranty = new Warranty("001");
+
+        when(rack1.getHealth()).thenReturn(unhealthyMap);
+        when(warrantyClient.getWarrantyForServer(unhealthyServer)).thenReturn(warranty);
+        when(rack1.getUnitForServer(unhealthyServer)).thenReturn(1);
+
         rackMonitor.monitorRacks();
 
         // WHEN
@@ -71,15 +84,19 @@ public class RackMonitorIncidentTest {
 
     @Test
     public void getIncidents_withOneHealthyServer_createsNoIncidents() throws Exception {
-        // GIVEN
-        // monitorRacks() will find only healthy servers
+        Map<Server, Double> healthyMap = new HashMap<>();
+        Server healthyServer = new Server("TEST1234");
+        healthyMap.put(healthyServer, 0.95);
+
+        when(rack1.getHealth()).thenReturn(healthyMap);
 
         // WHEN
+        rackMonitor.monitorRacks();
         Set<HealthIncident> actualIncidents = rackMonitor.getIncidents();
 
         // THEN
         assertEquals(0, actualIncidents.size(),
-            "Monitoring a healthy server should record no incidents!");
+                "Monitoring a healthy server should record no incidents!");
     }
 
     @Test
@@ -100,15 +117,20 @@ public class RackMonitorIncidentTest {
     public void monitorRacks_withUnwarrantiedServer_throwsServerException() throws Exception {
         // GIVEN
         Server noWarrantyServer = new Server("TEST0052");
-        rack1ServerUnits = new HashMap<>();
+        Map<Server, Integer> rack1ServerUnits = new HashMap<>();
         rack1ServerUnits.put(noWarrantyServer, 1);
-        rack1 = new Rack("RACK01", rack1ServerUnits);
-        rackMonitor = new RackMonitor(new HashSet<>(Arrays.asList(rack1)),
-            wingnutClient, warrantyClient, 0.9D, 0.8D);
+
+        // Stub the Rack methods
+        when(rack1.getHealth()).thenReturn(Collections.singletonMap(noWarrantyServer, 0.6));
+        when(rack1.getUnitForServer(noWarrantyServer)).thenReturn(1);
+
+        // Stub the WarrantyClient behavior
+        when(warrantyClient.getWarrantyForServer(noWarrantyServer))
+                .thenThrow(new WarrantyNotFoundException("Warranty not found for server"));
 
         // WHEN and THEN
         assertThrows(RackMonitorException.class,
-            () -> rackMonitor.monitorRacks(),
-            "Monitoring a server with no warranty should throw exception!");
+                () -> rackMonitor.monitorRacks(),
+                "Monitoring a server with no warranty should throw an exception!");
     }
 }

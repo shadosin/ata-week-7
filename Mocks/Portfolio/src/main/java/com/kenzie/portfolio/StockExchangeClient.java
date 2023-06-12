@@ -21,7 +21,11 @@ public class StockExchangeClient {
         try {
             StockPriceResponse response = stockExchange.getMarketPrice(stock.getSymbol());
 
-            return response.getPrice();
+            if (response != null) {
+                return response.getPrice();
+            } else {
+                return null;
+            }
 
         } catch (NonExistentStockException e) {
             return null;

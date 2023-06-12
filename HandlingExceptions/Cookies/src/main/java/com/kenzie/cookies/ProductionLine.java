@@ -3,6 +3,7 @@ package com.kenzie.cookies;
 import com.kenzie.cookies.cookie.ChocolateChipCookie;
 import com.kenzie.cookies.cookie.CookieBox;
 import com.kenzie.cookies.cookie.CookieIngredient;
+import com.kenzie.cookies.exception.AllergenContaminantException;
 import com.kenzie.cookies.exception.CookieProductionException;
 
 import org.apache.logging.log4j.LogManager;
@@ -32,11 +33,16 @@ public class ProductionLine {
      * @return The boxes of cookies that are ready to be sold.
      * @throws CookieProductionException if an issue occurs and the production line needs to be halted
      */
-    public List<CookieBox> createBatch(int numberOfCookiesToMake) {
+    public List<CookieBox> createBatch(int numberOfCookiesToMake)  {
         for (int i = 0; i < numberOfCookiesToMake; i++) {
-            List<CookieIngredient> ingredientTypes = mixer.mix();
-            ChocolateChipCookie cookie = oven.bake(ingredientTypes);
-            // TODO: package cookie
+            try {
+                List<CookieIngredient> ingredientTypes = mixer.mix();
+                ChocolateChipCookie cookie = oven.bake(ingredientTypes);
+                cookiePackager.packageCookie(cookie);
+            }catch(AllergenContaminantException e){
+                logger.fatal("Allergen contamination detected during cookie packaging");
+                throw new CookieProductionException("Error packaging cookies");
+            }
         }
         return cookiePackager.getCookieBoxes();
     }

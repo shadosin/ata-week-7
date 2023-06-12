@@ -1,6 +1,8 @@
 package com.kenzie.bank;
 
 import com.kenzie.bank.exceptions.InsufficientFundsException;
+import com.kenzie.bank.exceptions.InvalidInputException;
+import com.kenzie.bank.exceptions.TransactionException;
 
 import java.math.BigDecimal;
 
@@ -39,7 +41,9 @@ public class CheckingAccount implements BankAccount {
     @Override
     public BigDecimal deposit(BigDecimal amount) {
         // TODO: Implement
-        return BigDecimal.ZERO;
+        validator.validate(amount);
+        balance = balance.add(amount);
+        return balance;
     }
 
     /**
@@ -47,16 +51,20 @@ public class CheckingAccount implements BankAccount {
      *
      * @param amount of money to withdraw
      * @return value of account after the withdraw
-     * @throws InsufficientFundsException if account does not have enough funds to withdraw amount
      */
     @Override
-    public BigDecimal withdraw(BigDecimal amount) {
+    public BigDecimal withdraw(BigDecimal amount) throws InsufficientFundsException {
         // TODO: implement
-        return BigDecimal.ZERO;
+      validator.validate(amount);
+      if(amount.compareTo(balance) > 0){
+          throw new InsufficientFundsException("Insufficient funds");
+      }
+      balance = balance.subtract(amount);
+      return balance;
     }
 
     @Override
     public BigDecimal getBalance() {
         // TODO: implement
-        return BigDecimal.ZERO;    }
+        return balance;    }
 }
